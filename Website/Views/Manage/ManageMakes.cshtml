@@ -1,0 +1,122 @@
+﻿
+@{
+    ViewBag.Title = "ManageMakes";
+}
+<div ng-controller="ManageMakesCtrl">
+    <div class="row">
+        <h2>ManageMakes</h2>
+        <button class="btn-primary" ng-click="AddMakeModal()">Add Make</button>
+        
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Make</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="make in Makes">
+                    <td>{{ make.MakeName }}</td>
+                    <td>
+                        <button class="btn btn-default" ng-click="DeleteMakeModal(make)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="modal fade" id="AddMakeModal" tabindex="-1" role="dialog" aria-labelledby="example" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title" id="AddMakeModal">Add Make</h1>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="control-label">Make</label>
+                            <input class="form-control" ng-model="make" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" ng-click="AddMake()">Add Make</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="DeleteMakeModal" tabindex="-1" role="dialog" aria-labelledby="example" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title" id="DeleteMakeModal">Delete Make</h1>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <p> Are you sure you wan't to delete {{make.MakeName}}?</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" ng-click="DeleteMake(make)">Delete Make</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    carsApp.factory('ManageMakesFactory', function ($http) {
+        return {
+            getMakes: function (callback) {
+                var url = "/Cars/GetMakes";
+                $http({ method: 'GET', url: url }).success(function (response) {
+                    callback(response);
+                })
+            },
+
+            addMake: function (make, callback) {
+                var url = "/Cars/AddMake";
+                $http({ method: 'GET', url: url, data: make }).success(function (response) {
+                    callback(response);
+                })
+            },
+
+            deleteMake; function(make, callback) {
+                var url = "/Cars/DeleteMake";
+                $http({ method: 'GET', url: url, data: make }).success(function (response) {
+                    callback(response);
+                })
+            }
+        }
+    })
+
+    function ManageMakesController(ManageMakesFactory, $scope) {
+        $scope.Makes = [];
+        $scope.NewMake = "";
+
+        $scope.AddMakeModal = function () {
+            $('#AddMakeModal').modal('show');
+        }
+
+        $scope.AddMake = function () {
+            ManageCarsFactory.addMake($scope.NewMake, $scope.AddMakeCallback);
+        }
+
+        $scope.AddMakeCallback = function (response) {
+            $scope.GetMakes();
+            $('#AddMakeModal').modal('hide');
+        }
+
+        $scope.DeleteMakeModal = function () {
+            $('#DeleteMakeModal').modal('show');
+        }
+
+        $scope.DeleteMake = function (make) {
+            ManageCarsFactory.deleteMake(make, $scope.DeleteMakeCallback);
+        }
+
+        $scope.DeleteMakeCallback = function (response) {
+            $('#DeleteMakeModal').modal('hide');
+        }
+
+    }
+</script>

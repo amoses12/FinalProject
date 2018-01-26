@@ -1,0 +1,95 @@
+﻿
+@{
+    ViewBag.Title = "CarDetails";
+}
+<div ng-controller="CarDetailsController">
+    <div class="row">
+        <div class="make-title">
+            <h2>{{ Car.Make }}</h2>
+        </div>
+        <div class="make-title">
+            <h4>{{ Car.Model }} ({{ Car.Year }})</h4>
+        </div>
+        <a class="btn btn-primary" href="/Cars/CarLibrary">Return to Library</a>
+    </div>
+    <div class="row car-image">
+        <img src="" />
+    </div>
+    <div class="row">
+        <div class="col-md-6 details-table">
+            <h2>Details</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                    
+                        <th>Drive</th>
+                        <th>Engine</th>
+                        <th>Horspower</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-model="Car">
+                        <td>{{ car.Drive }}</td>
+                        <td>{{ car.Displacement }} {{ car.Cylinders }} {{ car.Charger }}</td>
+                        <td>{{ car.Horsepower }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-6 performance-table">
+            <h2>Performance</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>0-60</th>
+                        <th>Top Speed</th>
+                        <th>Quarter Mile</th>
+                        <th>60-0</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-model="Car">
+                        <td>{{ car.ZeroToSixty }}</td>
+                        <td>{{ car.TopSpeed }}}</td>
+                        <td>{{ car.QuarterMile }}</td>
+                        <td>{{ car.SixtyToZero }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    carsApp.factory('CarDetailsFactory', function ($http) {
+        return {
+            getCar: function (CarId, callback) {
+                var url = "/Cars/GetCarById";
+                $http({ method: 'GET', url: url, data: CarId }).success(function (response) {
+                    callback(response);
+                })
+            }
+        }
+    })
+
+    function CarDetailsController(CarDetailsFactory, $scope) {
+        $scope.Car = {};
+
+        $scope.GetCarId = function () {
+            var url = window.location.href;
+            var urlArray = url.split('/');
+            var CarId = urlArray[4];
+            return CarId;
+        }
+
+        $scope.GetCar = function () {
+            var CarId = $scope.GetCarId();
+            CarDetailsFactory(CarId, $scope.GetCarCallback);
+        }
+
+        $scope.GetCarCallback = function (response) {
+            $scope.Car = response;
+        }
+        $scope.GetCar();
+    }
+</script>

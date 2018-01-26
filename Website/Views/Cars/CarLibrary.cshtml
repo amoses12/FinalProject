@@ -1,0 +1,112 @@
+﻿
+@{
+    ViewBag.Title = "CarLibrary";
+}
+
+
+<div ng-controller="LibraryCarsCtrl">
+    <div class="row">
+        <h2>Car Library</h2>
+        <select class="form-control" ng-options="make as make.MakeName for make in Makes" ng-model="Make"></select>
+        <button class="btn btn-primary" ng-click="GetAllCars">View All Cars</button>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Make</th>
+                    <th>Model</th>
+                    <th>Year</th>
+                    <th>Drive</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="car in cars">
+                    <td>{{ car.Make }}</td>
+                    <td>{{ car.Model }}</td>
+                    <td>{{ car.Year }}</td>
+                    <td>{{ car.Drive }}</td>
+                    <td>
+                        <a class="btn btn-primary" href="/Cars/CarDetails/{{car.id}}">View</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    carsApp.factory('LibraryCarsFactory', function ($http) {
+        return {
+            getAllCars: function (callback) {
+                var url = "/Cars/GetAllCars";
+                $http({ method: 'GET', url: url }).success(function (response) {
+                    callback(resonse);
+                });
+            },
+
+            createCar: function (NewCar, callback) {
+                var url = "/Cars/CreateCar";
+                $http({ method: 'POST', url: url, data: NewCar }).success(function (response) {
+                    callback(response);
+                })
+            },
+
+            getMakes: function (callback) {
+                var url = "/Cars/GetMakes";
+                $http({ method: 'GET', url: url }).success(function (response) {
+                    callback(response);
+                })
+            },
+
+            sortByMake: function (make, callback) {
+                var url = "/Cars/GetCarByMakeID";
+                $http({ method: 'GET', url: url, data: make }).success(function (response) {
+                    callback(response);
+                })
+            },
+
+
+        }
+    });
+
+    function LibraryCarsController(LibraryCarsFactory, $scope) {
+
+        $scope.AllCars = [];
+        $scope.Makes = [];
+        $scope.Make = {};
+   
+
+
+        $scope.GetAllCars = function () {
+            LibraryCarsFactory.getAllCars($scope.GetAllCarsCallback);
+        }
+
+        $scope.GetAllCarsCallback = function (response) {
+            $scope.AllCars = response;
+        }
+
+        $scope.GetMakes = function () {
+            LibraryCarsFactory.getMakes($scope.GetMakesCallback);
+        }
+
+        $scope.GetMakesCallback = function (response) {
+            $scope.Makes = response;
+        }
+
+        $scope.SortByMake = function () {
+            LibraryCarsFactory.sortByMake($scope.Make, $scope.SortByMakeCallback);
+        }
+
+        $scope.SortByMakeCallback = function (response) {
+            $scope.AllCars = response;
+        }
+
+
+
+
+
+        $scope.GetAllCars();
+        $scope.GetMakes();
+    }
+
+</script>

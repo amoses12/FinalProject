@@ -1,0 +1,182 @@
+﻿
+@{
+    ViewBag.Title = "ManageCars";
+}
+
+<div ng-controller="ManageCarsCtrl">
+    <div class="row">
+        <h2>ManageCars</h2>
+        <button class="btn btn-primary" ng-click="AddCarModal()">Add Car</button>
+        <button class="btn btn-default" ng-click="EditMakes()">Edit Makes</button>
+        <button class="btn btn-default" ng-click="AddEngineModal()">Add Engine</button>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Make</th>
+                    <th>Model</th>
+                    <th>Year</th>
+                    <th>Drive</th>
+                    <th>Engine</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="car in cars">
+                    <td>{{ car.Make }}</td>
+                    <td>{{ car.Model }}</td>
+                    <td>{{ car.Year }}</td>
+                    <td>{{ car.Drive }}</td>
+                    <td>{{ car.Engine }}</td>
+                    <td>
+                        <button class="btn btn-primary" ng-click="carDetails(car)">View</button>
+                    </td>
+                    <td>
+                        <button class="btn btn-default" ng-click="editCarModal(car)">Edit</button>
+                    </td>
+                    <td>
+                        <button class="btn btn-default" ng-click="deleteCarModal(car)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="modal fade" id="CreateCarModal" tabindex="-1" role="dialog" aria-labelledby="example" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title" id="createCarModal">Add Car</h1>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="control-label">Make</label>
+                            <select class="form-control" ng-options="make in Makes track by make" id="newCarMake" ng-model="NewCar.Make.MakeName" />
+                            <label class="control-label">Model</label>
+                            <input class="form-control" type="text" id="newCarModel" ng-model="NewCar.Model.ModelName" />
+                            <label class="control-label">Year</label>
+                            <input class="form-control" type="text" id="newCarYear" ng-model="NewCar.Year" />
+                            <label class="control-label">Drive</label>
+                            <input class="form-control" type="text" id="newCarDrive" ng-model="NewCar.Model.Drive" />
+                            <label class="control-label">Engine Displacement</label>
+                            <input class="form-control" type="text" id="newCarDisplacement" ng-model="NewCar.Model.Displacement"/>
+                            <label class="control-label">Cylinders</label>
+                            <select class="form-control" ng-options="engine as engine for engine in Engines track by engine" ng-model="NewCar.Engine" />
+                            <label class="control-label">Charger</label>
+                            <input class="form-control" type="text" id="newCarCharger" ng-model="NewCar.Engine.Charger"/>
+                            <label class="control-label">Horsepower</label>
+                            <input class="form-control" type="text" id="newCarHorsePower" ng-model="NewCar.Model.HorsePower" />
+                            <label class="control-label">0-60</label>
+                            <input class="form-control" type="text" id="newCarZeroToSixty" ng-model="NewCar.Performance.ZeroToSixty" />
+                            <label class="control-label">Top Speed</label>
+                            <input class="form-control" type="text" id="newCarTopSpeed" ng-model="NewCar.Performance.TopSpeed" />
+                            <label class="control-label">60-0</label>
+                            <input class="form-control" type="text" id="newCarSixtyToZero" ng-model="NewCar.Performance.SixtyToZero" />
+                            <label class="control-label">Quarter Mile</label>
+                            <input class="form-control" type="text" id="newCarQuarterMile" ng-model="NewCar.Performance.QuarterMile" />
+                            <label class="control-label">Image</label>
+                            <input class="form-control" type="text" id="newCarImage" ng-model="NewCar.Image.ImageId" />
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" ng-click="CreateCar">Add Car</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+ 
+    </div>
+</div>
+
+
+<script>
+    carsApp.factory('ManageCarsFactory', function ($http) {
+        return {
+            getAllCars: function (callback) {
+                var url = "/Cars/GetAllCars";
+                $http({ method: 'GET', url: url }).success(function (response) {
+                    callback(resonse);
+                });
+            },
+
+            createCar: function (NewCar, callback) {
+                var url = "/Cars/CreateCar";
+                $http({ method: 'POST', url: url, data: NewCar }).success(function (response) {
+                    callback(response);
+                })
+            },
+
+            getMakes: function (callback) {
+                var url = "/Cars/GetMakes";
+                $http({ method: 'GET', url: url }).success(function (response) {
+                    callback(response);
+                })
+            },
+
+            getEngines: function (callback) {
+                var url = "/Cars/GetEngines";
+                $http({ method: 'GET', url: url }).success(function (response) {
+                    callback(response);
+                })
+            }
+
+           
+
+            
+
+
+        }
+    });
+
+    function ManageCarsController(ManageCarsFactory, $scope){
+
+        $scope.AllCars = [];
+        $scope.NewCar = {};
+        $scope.Makes = [];
+        $scope.Engines = [];
+        
+
+        $scope.GetAllCars = function(){
+            ManageCarsFactory.getAllCars($scope.GetAllCarsCallback);
+        }
+
+        $scope.GetAllCarsCallback = function (response) {
+            $scope.AllCars = response;
+        }
+
+        $scope.GetMakes = function () {
+            ManageCarsFactory.getMakes($scope.GetMakesCallback);
+        }
+
+        $scope.GetMakesCallback = function (response) {
+            $scope.Makes = response;
+        }
+
+        $scope.AddCarModal = function () {
+            $('#CreateCarModal').modal('show');
+        }
+
+        $scope.CreateCar = function () {
+            ManageCarsFactory.createCar($scope.NewCar, $scope.CreateCarCallback)
+        }
+
+        $scope.CreateCarCallback = function (response) {
+            $scope.GetAllCars();
+            $('#CreateCarModal').modal('hide');
+        }
+    
+        $scope.GetEngines = function () {
+            ManageCarsFactory.getEngines($scope.GetEnginesCallback);
+        }
+
+        $scope.GetEnginesCallback = function (response) {
+            $scope.Engines = response;
+        }
+
+        
+        $scope.GetAllCars();
+        $scope.GetEngines();
+        $scope.GetMakes();
+    }
+
+</script>

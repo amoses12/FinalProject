@@ -1,0 +1,139 @@
+﻿
+@{
+    ViewBag.Title = "ManageEngines";
+}
+
+<div ng-controller="ManageEnginesCtrl">
+    <div class="row">
+        <h2>ManageMakes</h2>
+        <button class="btn-primary" ng-click="AddEngineModal()">Add Make</button>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Cylinders</th>
+                    <th>Charger</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="engine in Engines">
+                    <td>{{ engine.Cylinders }}</td>
+                    <td>{{ engine.Charger }}</td>
+                    <td>
+                        <button class="btn btn-default" ng-click="DeleteMakeModal(make)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="modal fade" id="AddEngineModal" tabindex="-1" role="dialog" aria-labelledby="example" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title" id="AddEngineModal">Add Make</h1>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="control-label">Cylinders</label>
+                            <input class="form-control" ng-model="NewEngine.Cylinders" />
+                            <label class="control-label">Charger</label>
+                            <input class="form-control" ng-model="NewEngine.Charger" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" ng-click="AddEngine()">Add Engine</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="DeleteEngineModal" tabindex="-1" role="dialog" aria-labelledby="example" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title" id="DeleteEngineModal">Delete Engine</h1>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <p> Are you sure you wan't to delete this engine?</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" ng-click="DeleteEngine(engine)">Delete</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    carsApp.factory('ManageEnginesFacotry', function ($http) {
+        return {
+            getEngines: function (callback) {
+                var url = "/Cars/GetEngines";
+                $http({ method: 'GET', url: url }).success(function (response) {
+                    callback(response);
+                })
+            },
+
+            addEngine: function (engine, callback) {
+                var url = "/Cars/AddEngine";
+                $http({ method: 'POST', url: url, data: engine }).success(function (response) {
+                    callback(response);
+                })
+            },
+
+            deleteEngine: function (engine, callback) {
+                var url = "/Cars/DeleteEngine";
+                $http({ method: 'POST', url: url, data: engine }).success(function (response) {
+                    callback(response);
+                })
+            },
+
+
+        }
+    })
+
+    function ManageEnginesController(ManageEnginesFactory, $scope) {
+        $scope.Engines = [];
+        $scope.NewEngine = {};
+        $scope.EngineToDelete = {};
+
+        $scope.GetEngines = function () {
+            ManageEnginesFactory.getEngines($scope.GetEnginesCallback);
+        }
+
+        $scope.GetEnginesCallback = function (response) {
+            $scope.Engines = response;
+        }
+
+        $scope.AddEngineModal = function () {
+            $('#AddEngineModal').modal('show');
+        }
+
+        $scope.AddEngine = function () {
+            ManageEnginesFactory.addEngine($scope.NewEngine, $scope.AddEngineCallback);
+        }
+
+        $scope.AddEngineCallback = function (response) {
+            $('#AddEngineModal').modal('hide');
+            $scope.GetEngines();
+        }
+
+        $scope.DeleteEngineModal = function (engine) {
+            $scope.EngineToDelete = engine;
+            $('#DeleteEngineModal').modal('show');
+        }
+
+        $scope.DeleteEngine = function () {
+            ManageEnginesFactory.deleteEngine($scope.EngineToDelete, $scope.DeleteEngineCallback);
+        }
+
+        $scope.DeleteEngineCallback = function (response) {
+            $('#DeleteEngineModal').modal('hide');
+            $scope.GetEngines();
+        }
+    }
+</script>
