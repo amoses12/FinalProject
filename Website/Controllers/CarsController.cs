@@ -14,9 +14,14 @@ namespace Website.Controllers
     {
         IDbConnection db = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
         // GET: Cars
-        public ActionResult Index()
+        public ActionResult CarLibrary()
         {
             return View("CarLibrary.cshtml");
+        }
+
+        public ActionResult Manage()
+        {
+            return View("ManageCars.cshtml");
         }
 
         public ActionResult GetAllCars()
@@ -30,35 +35,50 @@ namespace Website.Controllers
                 CommandDefinition command = new CommandDefinition("Create_Car",
                            new
                            {
-                               @Make = NewCar.Make.MakeName,
+                               @MakeID = NewCar.Make.ID,
                                @Model = NewCar.Model.ModelName,
                                @Year = NewCar.Year,
                                @Drive = NewCar.Model.Drive,
                                @Displacement = NewCar.Model.Displacement,
-                               @Cylinders = NewCar.Engine.Cylinders,
-                               @Charger = NewCar.Engine.Charger,
+                               @Engine = NewCar.Engine.EngineID,
                                @HorsePower = NewCar.Model.HorsePower,
                                @ZeroToSixty = NewCar.Performance.ZeroToSixty,
                                @TopSpeed = NewCar.Performance.TopSpeed,
                                @SixtyToZero = NewCar.Performance.SixtyToZero,
                                @QuarterMile = NewCar.Performance.QuarterMile,
-                               @ImageId = NewCar.Image.ImageID
+                               @ImageId = NewCar.Image.ImageSrc
                            },
                            commandType: CommandType.StoredProcedure);
             
             db.Execute(command);
 
         }
-
-        public void DeleteCar(int Id)
+        public void UpdateCar(Car carToUpdate)
         {
-            string sql = "Select * from Cars Where ID = @ID";
+            CommandDefinition command = new CommandDefinition("Update_Car",
+                new
+                {
+                    @MakeID = carToUpdate.Make.ID,
+                    @Model = carToUpdate.Model.ModelName,
+                    @Year = carToUpdate.Year,
+                    @Drive = carToUpdate.Model.Drive,
+                    @Displacement = carToUpdate.Model.Displacement,
+                    @Engine = carToUpdate.Engine.EngineID,
+                    @HorsePower = carToUpdate.Model.HorsePower,
+                    @ZeroToSixty = carToUpdate.Performance.ZeroToSixty,
+                    @TopSpeed = carToUpdate.Performance.TopSpeed,
+                    @SixtyToZero = carToUpdate.Performance.SixtyToZero,
+                    @QuarterMile = carToUpdate.Performance.QuarterMile,
+                    @ImageId = carToUpdate.Image.ImageSrc
+                }, commandType: CommandType.StoredProcedure);
+            db.Execute(command);
+        }
 
-            BaseCar car = new BaseCar();
+        public void DeleteCar(Car car)
+        {
+            
 
-            car = db.Query<BaseCar>(sql, new { @ID = Id }).FirstOrDefault();
-
-            CommandDefinition command = new CommandDefinition("Delete_Car", new { @ID = Id }, commandType: CommandType.StoredProcedure);
+            CommandDefinition command = new CommandDefinition("Delete_Car", new { @ID = car.ID, @ModelID = car.ModelID, @PerformanceID = car.PerformanceID, @ImageID = car.ImageID }, commandType: CommandType.StoredProcedure);
             db.Execute(command);
         }
 
@@ -100,6 +120,8 @@ namespace Website.Controllers
         {
             return Json(db.Query<Car>("Get_Car_Details", new { @ID = Id }, commandType: CommandType.StoredProcedure), JsonRequestBehavior.AllowGet);
         }
+
+        
 
     }
 }
