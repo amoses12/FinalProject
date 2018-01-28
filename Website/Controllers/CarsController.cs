@@ -36,22 +36,23 @@ namespace Website.Controllers
 
         public void CreateCar(Car NewCar)
         {
-         
+       
                 CommandDefinition command = new CommandDefinition("Create_Car",
                            new
                            {
-                               @MakeID = NewCar.Make.ID,
+                               @Make = NewCar.Make.MakeName,
                                @Model = NewCar.Model.ModelName,
                                @Year = NewCar.Year,
                                @Drive = NewCar.Model.Drive,
                                @Displacement = NewCar.Model.Displacement,
-                               @Engine = NewCar.Engine.EngineID,
+                               @Cylinders = NewCar.Engine.Cylinders,
+                               @Charger = NewCar.Engine.Charger,
                                @HorsePower = NewCar.Model.HorsePower,
                                @ZeroToSixty = NewCar.Performance.ZeroToSixty,
                                @TopSpeed = NewCar.Performance.TopSpeed,
                                @SixtyToZero = NewCar.Performance.SixtyToZero,
                                @QuarterMile = NewCar.Performance.QuarterMile,
-                               @ImageId = NewCar.Image.ImageSrc
+                               @ImageSrc = NewCar.Image.ImageSrc
                            },
                            commandType: CommandType.StoredProcedure);
             
