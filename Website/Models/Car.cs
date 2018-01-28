@@ -23,5 +23,10 @@ namespace Website.Models
         public int EngineID { get; set; }
         public int PerformanceID { get; set; }
         public int ImageID { get; set; }
+
+        public Car()
+        {
+            this.Image = new Image();
+        } 
     }
 }
