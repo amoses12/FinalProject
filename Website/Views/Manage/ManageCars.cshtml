@@ -6,8 +6,8 @@
 <div ng-controller="ManageCarsCtrl">
     <div class="row">
         <h2>ManageCars</h2>
-        <button class="btn btn-primary" ng-click="AddCarModal()">Add Car</button>
-        <button class="btn btn-default" ng-click="EditMakesModal()">Edit Makes</button>
+        <button class="btn btn-primary" ng-click="AddCarModal">Add Car</button>
+        <button class="btn btn-default" ng-click="EditMakesModal">Edit Makes</button>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -172,6 +172,12 @@
     </div>
 </div>
 
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+
+<script>
+    var carsApp = angular.module("CarsApp", []);
+</script>
 
 <script>
     carsApp.factory('ManageCarsFactory', function ($http) {
@@ -240,7 +246,9 @@
         }
     });
 
-    function ManageCarsController(ManageCarsFactory, $scope){
+    carsApp.controller('ManageCarsController', function(ManageCarsFactory, $scope) {
+
+
 
         $scope.AllCars = [];
         $scope.NewCar = {};
@@ -249,10 +257,10 @@
         $scope.EditCar = {};
         $scope.DeleteCar = {};
         $Scope.NewMake = "";
-       
-        
 
-        $scope.GetAllCars = function(){
+
+
+        $scope.GetAllCars = function () {
             ManageCarsFactory.getAllCars($scope.GetAllCarsCallback);
         }
 
@@ -280,7 +288,7 @@
             $scope.GetAllCars();
             $('#CreateCarModal').modal('hide');
         }
-    
+
         $scope.GetEngines = function () {
             ManageCarsFactory.getEngines($scope.GetEnginesCallback);
         }
@@ -338,10 +346,11 @@
             $scope.GetMakes();
         }
 
-        
+
         $scope.GetAllCars();
         $scope.GetEngines();
         $scope.GetMakes();
-    }
+
+    });
 
 </script>

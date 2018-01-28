@@ -16,12 +16,17 @@ namespace Website.Controllers
         // GET: Cars
         public ActionResult CarLibrary()
         {
-            return View("CarLibrary.cshtml");
+            return View("/Views/Cars/CarLibrary.cshtml");
         }
 
-        public ActionResult Manage()
+        public ActionResult ManageCars()
         {
-            return View("ManageCars.cshtml");
+            return View("/Views/Manage/ManageCars.cshtml");
+        }
+
+        public ActionResult Details()
+        {
+            return View("/Views/Cars/CarDetails");
         }
 
         public ActionResult GetAllCars()
