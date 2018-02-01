@@ -26,6 +26,10 @@ namespace Website.Models
 
         public Car()
         {
+            this.Make = new Make();
+            this.Model = new Model();
+            this.Engine = new Engine();
+            this.Performance = new Performance();
             this.Image = new Image();
         } 
     }

@@ -24,14 +24,31 @@ namespace Website.Controllers
             return View("/Views/Manage/ManageCars.cshtml");
         }
 
-        public ActionResult Details()
+        public ActionResult CarDetails()
         {
-            return View("/Views/Cars/CarDetails");
+            return View("/Views/Cars/CarDetails.cshtml");
+        }
+
+        public ActionResult CarImages()
+        {
+            return View("/Views/Cars/CarImages.cshtml");
         }
 
         public ActionResult GetAllCars()
         {
-            return Json(db.Query<Car>("Get_All_Cars", commandType: CommandType.StoredProcedure).ToList(), JsonRequestBehavior.AllowGet);
+            List<Car> cars = new List<Car>();
+            cars = db.Query<Car>("Get_All_Car", commandType: CommandType.StoredProcedure).ToList();
+
+            foreach(Car car in cars)
+            {
+                car.Make = db.Query<Make>("Get_Make", new { MakeID = car.MakeID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                car.Model = db.Query<Model>("Get_Model", new { ModelID = car.ModelID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                car.Engine = db.Query<Engine>("Get_Engine", new { EngineID = car.EngineID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                car.Performance = db.Query<Performance>("Get_Performance", new { PerformanceID = car.PerformanceID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                car.Image = db.Query<Image>("Get_Image", new { ImageID = car.ImageID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+
+            }
+            return Json(cars, JsonRequestBehavior.AllowGet);
         }
 
         public void CreateCar(Car NewCar)
@@ -45,8 +62,7 @@ namespace Website.Controllers
                                @Year = NewCar.Year,
                                @Drive = NewCar.Model.Drive,
                                @Displacement = NewCar.Model.Displacement,
-                               @Cylinders = NewCar.Engine.Cylinders,
-                               @Charger = NewCar.Engine.Charger,
+                               @EngineID = NewCar.Engine.EngineID,
                                @HorsePower = NewCar.Model.HorsePower,
                                @ZeroToSixty = NewCar.Performance.ZeroToSixty,
                                @TopSpeed = NewCar.Performance.TopSpeed,
@@ -64,18 +80,22 @@ namespace Website.Controllers
             CommandDefinition command = new CommandDefinition("Update_Car",
                 new
                 {
-                    @MakeID = carToUpdate.Make.ID,
+                    @ID = carToUpdate.ID,
+                    @MakeID = carToUpdate.Make.MakeID,
+                    @ModelID = carToUpdate.Model.ModelID,
                     @Model = carToUpdate.Model.ModelName,
                     @Year = carToUpdate.Year,
                     @Drive = carToUpdate.Model.Drive,
                     @Displacement = carToUpdate.Model.Displacement,
-                    @Engine = carToUpdate.Engine.EngineID,
+                    @EngineID = carToUpdate.Engine.EngineID,
                     @HorsePower = carToUpdate.Model.HorsePower,
+                    @PerformanceID = carToUpdate.Performance.PerformanceID,
                     @ZeroToSixty = carToUpdate.Performance.ZeroToSixty,
                     @TopSpeed = carToUpdate.Performance.TopSpeed,
                     @SixtyToZero = carToUpdate.Performance.SixtyToZero,
                     @QuarterMile = carToUpdate.Performance.QuarterMile,
-                    @ImageId = carToUpdate.Image.ImageSrc
+                    @ImageId = carToUpdate.Image.ImageID,
+                    @ImageSrc = carToUpdate.Image.ImageSrc
                 }, commandType: CommandType.StoredProcedure);
             db.Execute(command);
         }
@@ -101,7 +121,7 @@ namespace Website.Controllers
 
         public void DeleteMake(Make make)
         {
-            CommandDefinition command = new CommandDefinition("Delete_Make", new { @MakeID = make.ID }, commandType: CommandType.StoredProcedure);
+            CommandDefinition command = new CommandDefinition("Delete_Make", new { @MakeID = make.MakeID }, commandType: CommandType.StoredProcedure);
             db.Execute(command);
         }
 
@@ -112,7 +132,7 @@ namespace Website.Controllers
 
         public void AddEngine(Engine engine)
         {
-            CommandDefinition command = new CommandDefinition("Add_Engine", new { @Cylinders = engine.Cylinders, @Charger = engine.Charger }, commandType: CommandType.StoredProcedure);
+            CommandDefinition command = new CommandDefinition("Add_Engine", new { @EngineName = engine.EngineName }, commandType: CommandType.StoredProcedure);
             db.Execute(command);
         }
 
@@ -122,10 +142,40 @@ namespace Website.Controllers
             db.Execute(command);
         }
 
-        public ActionResult GetCarById(int Id)
+        public ActionResult GetCarById(int id)
         {
-            return Json(db.Query<Car>("Get_Car_Details", new { @ID = Id }, commandType: CommandType.StoredProcedure), JsonRequestBehavior.AllowGet);
+            Car car = new Car();
+            car = db.Query<Car>("Get_Car_Detail", new { @ID = id }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+
+
+            car.Make = db.Query<Make>("Get_Make", new { MakeID = car.MakeID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+            car.Model = db.Query<Model>("Get_Model", new { ModelID = car.ModelID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+            car.Engine = db.Query<Engine>("Get_Engine", new { EngineID = car.EngineID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+            car.Performance = db.Query<Performance>("Get_Performance", new { PerformanceID = car.PerformanceID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+            car.Image = db.Query<Image>("Get_Image", new { ImageID = car.ImageID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+
+
+            return Json(car, JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult SortByMake(Make make)
+        {
+            List<Car> cars = new List<Car>();
+
+            cars = db.Query<Car>("Sort_By_Make", new { @MakeID = make.MakeID }, commandType: CommandType.StoredProcedure).ToList();
+
+            foreach (Car car in cars)
+            {
+                car.Make = db.Query<Make>("Get_Make", new { MakeID = car.MakeID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                car.Model = db.Query<Model>("Get_Model", new { ModelID = car.ModelID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                car.Engine = db.Query<Engine>("Get_Engine", new { EngineID = car.EngineID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                car.Performance = db.Query<Performance>("Get_Performance", new { PerformanceID = car.PerformanceID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                car.Image = db.Query<Image>("Get_Image", new { ImageID = car.ImageID }, commandType: CommandType.StoredProcedure).FirstOrDefault();
+
+            }
+            return Json(cars, JsonRequestBehavior.AllowGet);
+        }
+    
 
         
 

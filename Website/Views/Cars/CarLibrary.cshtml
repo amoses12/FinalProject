@@ -7,8 +7,11 @@
 <div ng-controller="LibraryCarsCtrl">
     <div class="row">
         <h2>Car Library</h2>
-        <select class="form-control" ng-options="make as make.MakeName for make in Makes" ng-model="Make"></select>
-        <button class="btn btn-primary" ng-click="GetAllCars">View All Cars</button>
+        <form class="form-group">
+            <label class="control-label">Filter By Make</label>
+            <select class="form-control" ng-options="make.MakeName for make in Makes | orderBy:'MakeName' track by make.MakeName" ng-model="Make" ng-change="SortByMake()"></select>
+        </form>
+            <button class="btn btn-primary" ng-click="GetAllCars()">View All Cars</button>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -20,13 +23,13 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="car in cars">
-                    <td>{{ car.Make }}</td>
-                    <td>{{ car.Model }}</td>
+                <tr ng-repeat="car in AllCars | orderBy:['Make.MakeName', 'Model.ModelName', 'Year']">
+                    <td>{{ car.Make.MakeName }}</td>
+                    <td>{{ car.Model.ModelName }}</td>
                     <td>{{ car.Year }}</td>
-                    <td>{{ car.Drive }}</td>
+                    <td>{{ car.Model.Drive }}</td>
                     <td>
-                        <a class="btn btn-primary" href="/Cars/CarDetails/{{car.id}}">View</a>
+                        <a class="btn btn-primary" ng-href="/Cars/CarDetails?id={{ car.ID }}">View</a>
                     </td>
                 </tr>
             </tbody>
@@ -34,8 +37,8 @@
     </div>
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 <script>
     var carsApp = angular.module("CarsApp", []);
 </script>
@@ -45,28 +48,28 @@
         return {
             getAllCars: function (callback) {
                 var url = "/Cars/GetAllCars";
-                $http({ method: 'GET', url: url }).success(function (response) {
-                    callback(resonse);
+                $http({ method: 'GET', url: url }).then(function (response) {
+                    callback(response);
                 });
             },
 
             createCar: function (NewCar, callback) {
                 var url = "/Cars/CreateCar";
-                $http({ method: 'POST', url: url, data: NewCar }).success(function (response) {
+                $http({ method: 'POST', url: url, data: NewCar }).then(function (response) {
                     callback(response);
                 })
             },
 
             getMakes: function (callback) {
                 var url = "/Cars/GetMakes";
-                $http({ method: 'GET', url: url }).success(function (response) {
+                $http({ method: 'GET', url: url }).then(function (response) {
                     callback(response);
                 })
             },
 
             sortByMake: function (make, callback) {
-                var url = "/Cars/GetCarByMakeID";
-                $http({ method: 'GET', url: url, data: make }).success(function (response) {
+                var url = "/Cars/SortByMake";
+                $http({ method: 'POST', url: url, data: make }).then(function (response) {
                     callback(response);
                 })
             },
@@ -75,7 +78,7 @@
         }
     });
 
-    function LibraryCarsController(LibraryCarsFactory, $scope) {
+    carsApp.controller('LibraryCarsCtrl', function(LibraryCarsFactory, $scope) {
 
         $scope.AllCars = [];
         $scope.Makes = [];
@@ -88,7 +91,7 @@
         }
 
         $scope.GetAllCarsCallback = function (response) {
-            $scope.AllCars = response;
+            $scope.AllCars = response.data;
         }
 
         $scope.GetMakes = function () {
@@ -96,16 +99,22 @@
         }
 
         $scope.GetMakesCallback = function (response) {
-            $scope.Makes = response;
+            $scope.Makes = response.data;
         }
 
         $scope.SortByMake = function () {
-            LibraryCarsFactory.sortByMake($scope.Make, $scope.SortByMakeCallback);
+            if ($scope.Make != null) {
+                LibraryCarsFactory.sortByMake($scope.Make, $scope.SortByMakeCallback);
+            }
+            else {
+                $scope.getAllCars();
+            }
         }
 
         $scope.SortByMakeCallback = function (response) {
-            $scope.AllCars = response;
+            $scope.AllCars = response.data;
         }
+
 
 
 
@@ -113,6 +122,6 @@
 
         $scope.GetAllCars();
         $scope.GetMakes();
-    }
+    })
 
 </script>

@@ -9,7 +9,7 @@ namespace Website.Models
     public class Model
     {
         // GET: Model
-        public int ID { get; set; }
+        public int ModelID { get; set; }
         public string ModelName { get; set; }
         public string Drive { get; set; }
         public float Displacement { get; set; }

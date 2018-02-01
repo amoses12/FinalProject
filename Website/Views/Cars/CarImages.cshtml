@@ -1,0 +1,81 @@
+﻿
+@{
+    ViewBag.Title = "CarImages";
+}
+@*<link href="D:/WWW/Project/Website/Website/Content/cropperjs/src/csscropper.css" rel="stylesheet">*@
+<style>
+    img{
+        max-width: 100%;
+    }
+</style>
+
+<h2>Edit Image</h2>
+<div ng-controller="CarImageCtrl">
+    <div flow-init
+         flow-name="uploader.flow"
+         flow-files-added="processFiles($files)">
+        <button flow-btn type="file">Upload Images</button>
+        <div ng-repeat="image in uploader.flow.files track by $index">
+            <span class="text">Blob image displayed with "flow-img"</span><img class="preview" flow-img="image" /><br>
+            <span class="text">Base64 image displayed with "ng-src"</span> <img class="preview" ng-src="{{imageStrings[$index]}}" />
+        </div>
+    </div>
+</div>
+
+@*<script src="D:/WWW/Project/Website/Website/Content/cropperjs/src/jscropper.js"></script>
+<script>
+
+    var image = document.getElementById('image');
+    var cropper = new Cropper(image, {
+        aspectRatio: 16 / 9
+        
+    });
+
+</script>*@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+
+
+<script>
+    var myApp = angular.module('app', [
+        "flow"
+    ]);
+</script>
+<script>
+
+    myApp.factory('CarsImageFactory', function (http) {
+        return {
+            saveImage: function (Image, callback) {
+                var url = "/Cars/SaveImage"
+                http({ method: 'POST', url: url, data: Image }).then(function (response) {
+                    callback(response);
+                });
+            },
+
+        }
+    });
+
+    myApp.controller('CarsImageCtrl', function ($scope) {
+        $scope.imageStrings = [];
+        $scope.Image = "";
+        $scope.processFiles = function (files) {
+            angular.forEach(files, function (flowFile, i) {
+                var fileReader = new FileReader();
+                fileReader.onload = function (event) {
+                    var uri = event.target.result;
+                    $scope.imageStrings[i] = uri;
+                };
+               $scope.Image = fileReader.readAsDataURL(flowFile.file);
+            });
+        };
+
+        $scope.SaveImage = function () {
+            CarsImageFactory.saveImage($scope.Image, $scope.SaveImageCallback)
+        }
+
+        $scope.SaveImageCallback = function (response) {
+
+        }
+
+    });
+</script>

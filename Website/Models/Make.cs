@@ -9,7 +9,7 @@ namespace Website.Models
     public class Make
     {
         // GET: Make
-        public int ID { get; set; }
+        public int MakeID { get; set; }
         public string MakeName { get; set; }
     }
 }

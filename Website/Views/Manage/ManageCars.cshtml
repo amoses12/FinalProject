@@ -16,19 +16,20 @@
                     <th>Year</th>
                     <th>Drive</th>
                     <th>Engine</th>
+                    <th>Details</th>
                     <th>Edit</th>
                     <th>Delete</th>
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="car in cars">
-                    <td>{{ car.Make }}</td>
-                    <td>{{ car.Model }}</td>
+                <tr ng-repeat="car in AllCars | orderBy:['Make.MakeName', 'Model.ModelName', 'Year']">
+                    <td>{{ car.Make.MakeName }}</td>
+                    <td>{{ car.Model.ModelName }}</td>
                     <td>{{ car.Year }}</td>
-                    <td>{{ car.Drive }}</td>
-                    <td>{{ car.Engine }}</td>
+                    <td>{{ car.Model.Drive }}</td>
+                    <td>{{ car.Engine.EngineName }}</td>
                     <td>
-                        <button class="btn btn-primary" ng-click="CarDetails(car)">View</button>
+                        <a class="btn btn-primary" ng-href="/Cars/CarDetails?id={{ car.ID }}">View</a>
                     </td>
                     <td>
                         <button class="btn btn-default" ng-click="EditCarModal(car)">Edit</button>
@@ -48,7 +49,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label class="control-label">Make</label>
-                            <select class="form-control" ng-options="make as make.MakeName for make in Makes track by make.MakeName" id="newCarMake" ng-model="NewCar.Make"></select>
+                            <select class="form-control" ng-options="make.MakeName for make in Makes | orderBy: 'MakeName' track by make.MakeName" id="newCarMake" ng-model="NewCar.Make"></select>
                             <label class="control-label">Model</label>
                             <input class="form-control" type="text" id="newCarModel" ng-model="NewCar.Model.ModelName" />
                             <label class="control-label">Year</label>
@@ -57,10 +58,8 @@
                             <input class="form-control" type="text" id="newCarDrive" ng-model="NewCar.Model.Drive" />
                             <label class="control-label">Engine Displacement</label>
                             <input class="form-control" type="text" id="newCarDisplacement" ng-model="NewCar.Model.Displacement"/>
-                            <label class="control-label">Cylinders</label>
-                            <select class="form-control" ng-options="engine as engine.Cylinders for engine in Engines track by engine.Cylinders" ng-model="NewCar.Engine.Cylinders"></select>
-                            <label class="control-label">Charger</label>
-                            <select class="form-control" ng-options="engine as engine.Charger for engine in Engines track by engine.Charger" ng-model="NewCar.Engine.Charger"></select>
+                            <label class="control-label">Engine</label>
+                            <select class="form-control" ng-options="engine.EngineName for engine in Engines track by engine.EngineName" ng-model="NewCar.Engine"></select>
                             <label class="control-label">Horsepower</label>
                             <input class="form-control" type="text" id="newCarHorsePower" ng-model="NewCar.Model.HorsePower" />
                             <label class="control-label">0-60</label>
@@ -92,7 +91,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label class="control-label">Make</label>
-                            <select class="form-control" ng-options="make as make.MakeName for make in Makes track by make" id="newCarMake" ng-model="EditCar.Make" />
+                            <select class="form-control" ng-options="make.MakeName for make in Makes | orderBy: 'MakeName' track by make.MakeName" id="newCarMake" ng-model="EditCar.Make"></select>
                             <label class="control-label">Model</label>
                             <input class="form-control" type="text" id="newCarModel" ng-model="EditCar.Model.ModelName" />
                             <label class="control-label">Year</label>
@@ -101,10 +100,8 @@
                             <input class="form-control" type="text" id="newCarDrive" ng-model="EditCar.Model.Drive" />
                             <label class="control-label">Engine Displacement</label>
                             <input class="form-control" type="text" id="newCarDisplacement" ng-model="EditCar.Model.Displacement" />
-                            <label class="control-label">Cylinders</label>
-                            <select class="form-control" ng-options="engine as engine.Cylinders for engine in Engines track by engine" ng-model="EditCar.Engine.Cylinders" />
-                            <label class="control-label">Charger</label>
-                            <input class="form-control" type="text" id="newCarCharger" ng-model="EditCar.Engine.Charger" />
+                            <label class="control-label">Engine</label>
+                            <select class="form-control" ng-options="engine.EngineName for engine in Engines track by engine.EngineName" ng-model="EditCar.Engine"></select>
                             <label class="control-label">Horsepower</label>
                             <input class="form-control" type="text" id="newCarHorsePower" ng-model="EditCar.Model.HorsePower" />
                             <label class="control-label">0-60</label>
@@ -116,11 +113,11 @@
                             <label class="control-label">Quarter Mile</label>
                             <input class="form-control" type="text" id="newCarQuarterMile" ng-model="EditCar.Performance.QuarterMile" />
                             <label class="control-label">Image</label>
-                            <input class="form-control" type="text" id="newCarImage" ng-model="EditCar.Image.ImageId" />
+                            <input class="form-control" type="text" id="newCarImage" ng-model="EditCar.Image.ImageSrc" />
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" ng-click="EditCar()">Save Changes</button>
+                        <button type="button" class="btn btn-primary" ng-click="UpdateCar()">Save Changes</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
@@ -133,12 +130,12 @@
                         <h1 class="modal-title" id="DeleteCarModal">Delete Car</h1>
                     </div>
                     <div class="modal-body">
-                       <p>Are you sure you want to delete this car? </p>
+                        <p>Are you sure you want to delete this car? </p>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" ng-click="DeleteCar()">Save Changes</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" ng-click="RemoveCar()">Delete</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -226,6 +223,7 @@
 
             updateCar: function (carToUpdate, callback) {
                 var url = "/Cars/UpdateCar";
+                debugger;
                 $http({ method: 'POST', url: url, data: carToUpdate }).then(function (response) {
                     callback(response);
                 })
@@ -236,6 +234,13 @@
                 $http({ method: 'POST', url: url, data: carToDelete }).then(function (response) {
                     callback(response);
                 });
+            },
+
+            carDetails: function (car, callback) {
+                var url = "/Cars/Details";
+                $http({ method: 'POST', url: url, data: car }).then(function (response) {
+                    callback(response);
+                })
             }
 
            
@@ -265,7 +270,7 @@
         }
 
         $scope.GetAllCarsCallback = function (response) {
-            $scope.AllCars = response;
+            $scope.AllCars = response.data;
         }
 
         $scope.GetMakes = function () {
@@ -281,12 +286,13 @@
         }
 
         $scope.CreateCar = function () {
+            debugger;
             ManageCarsFactory.createCar($scope.NewCar, $scope.CreateCarCallback)
         }
 
         $scope.CreateCarCallback = function (response) {
-            $scope.GetAllCars();
             $('#CreateCarModal').modal('hide');
+            $scope.GetAllCars();
         }
 
         $scope.GetEngines = function () {
@@ -302,25 +308,26 @@
             $('#EditCarModal').modal('show');
         }
 
-        $scope.EditCar = function (carToEdit) {
-            ManageCarsFactory.updateCar($scope.EditCar, $scope.EditCarCallback);
+        $scope.UpdateCar = function (carToEdit) {
+            ManageCarsFactory.updateCar($scope.EditCar, $scope.UpdateCarCallback);
         }
 
-        $scope.EditCarCallback = function (response) {
-            $('EditCarModal').modal('hide');
+        $scope.UpdateCarCallback = function (response) {
+            $('#EditCarModal').modal('hide');
             $scope.GetAllCars();
         }
 
         $scope.DeleteCarModal = function (car) {
+
             $scope.DeleteCar = car;
             $('#DeleteCarModal').modal('show');
         }
 
-        $scope.DeleteCar = function (carToDelete) {
-            ManageCarsFactory.deleteCar(carToDelete, $scope.DeleteCarCallback);
+        $scope.RemoveCar = function () {
+            ManageCarsFactory.deleteCar($scope.DeleteCar, $scope.RemoveCarCallback);
         }
 
-        $scope.DeleteCarCallback = function (response) {
+        $scope.RemoveCarCallback = function (response) {
             $('#DeleteCarModal').modal('hide');
             $scope.GetAllCars();
         }
@@ -344,6 +351,14 @@
 
         $scope.DeleteMakeCallback = function (response) {
             $scope.GetMakes();
+        }
+
+        $scope.CarDetails = function (car) {
+            ManageCarsFactory.carDetails(car, $scope.CarDetailsCallback);
+        }
+
+        $scope.CarDetailsCallback = function (response) {
+
         }
 
 

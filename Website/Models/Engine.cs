@@ -10,8 +10,6 @@ namespace Website.Models
     {
         // GET: Engine
         public int EngineID { get; set; }
-        public int Cylinders { get; set; }
-        public string Charger { get; set; }
-        public int Horsepower { get; set; }
+        public string EngineName { get; set; }
     }
 }

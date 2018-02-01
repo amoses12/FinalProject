@@ -2,18 +2,19 @@
 @{
     ViewBag.Title = "CarDetails";
 }
+<link src="/Content/ImageStyle.css" rel="stylesheet" />
 <div ng-controller="CarDetailsController">
     <div class="row">
-        <div class="make-title">
-            <h2>{{ Car.Make }}</h2>
+        <div class="make-title" ng-model="Car">
+            <h2>{{ Car.Make.MakeName }}</h2>
         </div>
-        <div class="make-title">
-            <h4>{{ Car.Model }} ({{ Car.Year }})</h4>
+        <div class="make-title" ng-model="Car">
+            <h4>{{ Car.Model.ModelName }} ({{ Car.Year }})</h4>
         </div>
         <a class="btn btn-primary" href="/Cars/CarLibrary">Return to Library</a>
     </div>
-    <div class="row car-image">
-        <img src="" />
+    <div class="row car-image image-size">
+        <img class="image-size" src="{{ Car.Image.ImageSrc }}" />
     </div>
     <div class="row">
         <div class="col-md-6 details-table">
@@ -23,15 +24,17 @@
                     <tr>
                     
                         <th>Drive</th>
+                        <th>Displacement</th>
                         <th>Engine</th>
                         <th>Horspower</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-model="Car">
-                        <td>{{ car.Drive }}</td>
-                        <td>{{ car.Displacement }} {{ car.Cylinders }} {{ car.Charger }}</td>
-                        <td>{{ car.Horsepower }}</td>
+                        <td>{{ Car.Model.Drive }}</td>
+                        <td>{{ Car.Model.Displacement }}</td>
+                        <td>{{ Car.Engine.EngineName }}</td>
+                        <td>{{ Car.Model.HorsePower }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -49,10 +52,10 @@
                 </thead>
                 <tbody>
                     <tr ng-model="Car">
-                        <td>{{ car.ZeroToSixty }}</td>
-                        <td>{{ car.TopSpeed }}}</td>
-                        <td>{{ car.QuarterMile }}</td>
-                        <td>{{ car.SixtyToZero }}</td>
+                        <td>{{ Car.Performance.ZeroToSixty }}</td>
+                        <td>{{ Car.Performance.TopSpeed }}</td>
+                        <td>{{ Car.Performance.QuarterMile }}</td>
+                        <td>{{ Car.Performance.SixtyToZero }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -60,8 +63,8 @@
     </div>
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 <script>
     var carsApp = angular.module("CarsApp", []);
 </script>
@@ -70,32 +73,33 @@
     carsApp.factory('CarDetailsFactory', function ($http) {
         return {
             getCar: function (CarId, callback) {
-                var url = "/Cars/GetCarById";
-                $http({ method: 'GET', url: url, data: CarId }).success(function (response) {
+                var url = "/Cars/GetCarById?id=" + CarId;
+                $http({ method: 'GET', url: url }).then(function (response) {
                     callback(response);
                 })
             }
         }
     })
 
-    function CarDetailsController(CarDetailsFactory, $scope) {
+    carsApp.controller('CarDetailsController', function (CarDetailsFactory, $scope) {
         $scope.Car = {};
 
         $scope.GetCarId = function () {
             var url = window.location.href;
-            var urlArray = url.split('/');
-            var CarId = urlArray[4];
+            var urlArray = url.split('=');
+            var CarId = urlArray[1];
             return CarId;
         }
 
         $scope.GetCar = function () {
+            
             var CarId = $scope.GetCarId();
-            CarDetailsFactory(CarId, $scope.GetCarCallback);
+            CarDetailsFactory.getCar(CarId, $scope.GetCarCallback);
         }
 
         $scope.GetCarCallback = function (response) {
-            $scope.Car = response;
+            $scope.Car = response.data;
         }
         $scope.GetCar();
-    }
+    })
 </script>
